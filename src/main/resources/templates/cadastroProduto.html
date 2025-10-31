@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Produto</title>
+    <title th:text="${pageTitle}">Cadastro de Produto</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#F7A8D7] min-h-screen flex items-center justify-center p-4 font-sans">
@@ -21,7 +21,8 @@
     </header>
 
     <section>
-        <h1 class="text-3xl md:text-4xl font-bold text-center text-black mb-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-black mb-6"
+            th:text="${pageTitle}">
             Cadastro de produto
         </h1>
 
@@ -29,33 +30,47 @@
             <strong class="font-bold">Sucesso!</strong>
             <span class="block sm:inline" th:text="${successMessage}"></span>
         </div>
-
         <div th:if="${errorMessage}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
             <strong class="font-bold">Erro!</strong>
             <span class="block sm:inline" th:text="${errorMessage}"></span>
         </div>
 
-        <form action="/cadastrar-produto" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form th:action="@{${formAction}}" method="POST" enctype="multipart/form-data" class="space-y-4" th:object="${produto}">
+
+            <input type="hidden" th:field="*{id}" />
+
             <div>
                 <label for="nome" class="block text-black font-medium mb-1">Nome:</label>
-                <input type="text" id="nome" name="nome" class="w-full p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-[#D946EF] outline-none" required>
+                <input type="text" id="nome" th:field="*{nome}" class="w-full p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-[#D946EF] outline-none" required>
             </div>
             <div>
                 <label for="descricao" class="block text-black font-medium mb-1">Descrição:</label>
-                <input type="text" id="descricao" name="descricao" class="w-full p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-[#D946EF] outline-none" required>
+                <input type="text" id="descricao" th:field="*{descricao}" class="w-full p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-[#D946EF] outline-none" required>
             </div>
             <div>
                 <label for="preco" class="block text-black font-medium mb-1">Preço R$:</label>
-                <input type="number" step="0.01" id="preco" name="preco" class="w-full p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-[#D946EF] outline-none" required>
+                <input type="number" step="0.01" id="preco" th:field="*{preco}" class="w-full p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-[#D946EF] outline-none" required>
             </div>
             <div>
                 <label for="desconto" class="block text-black font-medium mb-1">Desconto (%):</label>
-                <input type="number" id="desconto" name="desconto" class="w-full p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-[#D946EF] outline-none">
+                <input type="number" id="desconto" th:field="*{desconto}" class="w-full p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-[#D946EF] outline-none">
             </div>
 
             <div>
-                <label class="block text-black font-medium mb-1">Imagem do produto:</label>
-                <input type="file" id="file-input" name="imagem" class="hidden" accept="image/*" required>
+                <div th:if="${produto.id != null && produto.caminhoImagem != null}" class="mb-2">
+                    <label class="block text-black font-medium mb-1">Imagem atual:</label>
+                    <img th:src="@{/uploads/{img}(img=${produto.caminhoImagem})}"
+                         alt="Imagem atual"
+                         class="w-32 h-32 object-cover rounded-lg">
+                    <p class="text-sm text-gray-600 mt-1">
+                        Selecione uma nova imagem apenas se desejar substituí-la.
+                    </p>
+                </div>
+
+                <label th:if="${produto.id == null}" class="block text-black font-medium mb-1">Imagem do produto (obrigatória):</label>
+
+                <input type="file" id="file-input" name="imagem" class="hidden" accept="image/*"
+                       th:required="${produto.id == null}">
 
                 <div id="drop-zone" class="border-2 border-dashed border-white bg-white/50 rounded-lg p-4 text-center cursor-pointer transition-colors">
                     <div id="initial-state">
@@ -65,7 +80,7 @@
                                 Carregar arquivo
                             </button>
                             <div class="flex items-center gap-2 text-black font-medium">
-                                <svg xmlns="http://www.w.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                                 <span>ou arraste aqui</span>
                             </div>
                         </div>
@@ -82,7 +97,9 @@
             </div>
 
             <div class="pt-2">
-                <button type="submit" class="w-full bg-white text-black font-bold py-2.5 rounded-lg shadow-md hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D946EF]">
+                <button type="submit"
+                        class="w-full bg-white text-black font-bold py-2.5 rounded-lg shadow-md hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D946EF]"
+                        th:text="${produto.id == null ? 'Cadastrar' : 'Atualizar'}">
                     Cadastrar
                 </button>
             </div>
@@ -90,7 +107,6 @@
     </section>
 </main>
 <script>
-    // O seu JavaScript continua o mesmo, não precisa de alterações.
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     const uploadButton = document.getElementById('upload-button');

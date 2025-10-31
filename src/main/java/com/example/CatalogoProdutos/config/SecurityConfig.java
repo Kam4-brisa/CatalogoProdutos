@@ -14,22 +14,41 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        // Adicione as novas rotas aqui para permitir o acesso
-                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/imagens/**", "/cadastro-produto", "/cadastrar-produto").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/index",
+                                "/login",
+                                "/css/**",
+                                "/js/**",
+                                "/imagens/**",
+                                "/doces/**",
+                                "/*.png",
+                                "/*.jpg",
+                                "/uploads/**"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                "/perfil",
+                                "/cadastro-produto",
+                                "/editar-produto/**",
+                                "/salvar-produto",
+                                "/excluir-produto/**"
+                        ).authenticated()
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/")
+                        .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .usernameParameter("email")
                         .defaultSuccessUrl("/index", true)
-                        .failureUrl("/?error=true")
+                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
+                        .logoutSuccessUrl("/login?logout=true")
                         .permitAll()
                 )
-                // Desabilitar CSRF para simplificar o formulário de upload. Em produção, use uma estratégia mais segura.
                 .csrf(csrf -> csrf.disable());
 
         return http.build();
